@@ -73,9 +73,10 @@ def set_timer (seconds, title):
     print(msg if msg else "\0")
 
     if is_pomo(seconds):
-        sh("pkill dunst")
+        sh("killall -SIGUSR1 dunst") # pause
         sleep(seconds)
-        sh("dunst & disown")
+        sh("killall -SIGUSR2 dunst") # resume
+
     else:
         sleep(seconds)
 
