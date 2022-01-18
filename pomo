@@ -1,6 +1,5 @@
 #!/bin/python3
 # Make pomo script more sane
-# todo: run in bg? ...really??
 # todo: say time starting and ending
 
 import re
@@ -10,11 +9,11 @@ from sys import argv
 from os import system as sh
 from os import environ as env
 
-timer_cmd="mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all"
-home=env.get("HOME", "/home/user")
-url=env.get("NTFY_POMO_URL")
-logfile=f"{home}/.scripts/output/pomo.log"
-default_duration="25m"
+timer_cmd = "mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all"
+home = env.get("HOME", "/home/user")
+url = env.get("NTFY_POMO_URL")
+logfile = f"{home}/.scripts/output/pomo.log"
+default_duration = "25m"
 
 def parse_time (arg):
     regex = r"(\d+)([smh])([eior]?[cnu]?[sr]?[s]?)?(.*)?" #jank
@@ -34,12 +33,12 @@ def parse_time (arg):
             return 60 * int(arg) # it's just a number, interpret that
                                  # as minutes
     except:
-      # invalid time
+        # invalid time
         return None
 
 
-def gen_human_time (t):
-    return t if t else default_duration
+# def gen_human_time (t):
+#     return t if t else default_duration
 
 def gen_seconds (s):
     return s if s else parse_time(default_duration)
@@ -68,7 +67,7 @@ def log_time (filename, pomo_type, title, human_time, seconds):
 
 def notify_done (time, ntfy_url, title):
     timer_type  = pomo_or_timer(is_pomo(time))
-    notif_suffix  = ' complete! \n(' + title + ')'
+    notif_suffix  = ' complete! \n' + ('(' + title + ')' if title else '')
     header = "'🍅🍅'" if is_pomo(time) else "''"
 
     sh("notify-send " + header + "'" + timer_type + " done!' &")
@@ -81,7 +80,8 @@ def notify_done (time, ntfy_url, title):
 
 def set_timer (seconds, ntfy_url, title):
     msg = pomo_format(seconds, title, " set")
-    print(msg if msg else "\0")
+    if msg:
+        print(msg)
 
     if is_pomo(seconds):
         sh("killall -SIGUSR1 dunst") # pause
