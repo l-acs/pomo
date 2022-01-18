@@ -73,7 +73,7 @@ def notify_done (time, ntfy_url, title):
     sh("notify-send " + header + "'" + timer_type + " done!' &")
 
     requests.post(url,
-                  data = timer_type + notif_suffix,
+                  data = (timer_type + notif_suffix).encode(),
                   headers = { "Tags": "tomato,tomato" })
 
     # maybe there's a libnotify implementation for python... duh
