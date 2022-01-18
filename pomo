@@ -4,6 +4,7 @@
 # todo: say time starting and ending
 
 import re
+import requests
 from time import sleep
 from sys import argv
 from os import system as sh
@@ -11,6 +12,7 @@ from os import environ as env
 
 timer_cmd="mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all"
 home=env.get("HOME", "/home/user")
+url=env.get("NTFY_POMO_URL")
 logfile=f"{home}/.scripts/output/pomo.log"
 default_duration="25m"
 
@@ -64,11 +66,20 @@ def log_time (filename, pomo_type, title, human_time, seconds):
     f.write(log_str)
     f.close()
 
-def notify_done (time):
-    sh("notify-send '" + pomo_or_timer(time) + " done!' &")
+def notify_done (time, ntfy_url, title):
+    timer_type  = pomo_or_timer(is_pomo(time))
+    notif_suffix  = ' complete! \n(' + title + ')'
+    header = "'🍅🍅'" if is_pomo(time) else "''"
+
+    sh("notify-send " + header + "'" + timer_type + " done!' &")
+
+    requests.post(url,
+                  data = timer_type + notif_suffix,
+                  headers = { "Tags": "tomato,tomato" })
+
     # maybe there's a libnotify implementation for python... duh
 
-def set_timer (seconds, title):
+def set_timer (seconds, ntfy_url, title):
     msg = pomo_format(seconds, title, " set")
     print(msg if msg else "\0")
 
@@ -80,7 +91,7 @@ def set_timer (seconds, title):
     else:
         sleep(seconds)
 
-    notify_done(seconds)
+    notify_done(seconds, ntfy_url, title)
     sh(timer_cmd)
 
 def parse_arguments ():
@@ -96,5 +107,5 @@ def parse_arguments ():
 
 [human_time, seconds, pomo_type, title] = parse_arguments()
 
-set_timer(seconds, title)
+set_timer(seconds, url, title)
 log_time(logfile, pomo_type, title, human_time, seconds)
