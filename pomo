@@ -78,7 +78,7 @@ def notify_done (time, ntfy_url, title):
 
     # maybe there's a libnotify implementation for python... duh
 
-def set_timer (seconds, ntfy_url, title):
+def set_timer (pomo_type, title, seconds, human_time, ntfy_url):
     msg = pomo_format(seconds, title, " set")
     if msg:
         print(msg)
@@ -91,6 +91,7 @@ def set_timer (seconds, ntfy_url, title):
     else:
         sleep(seconds)
 
+    log_time(logfile, pomo_type, title, human_time, seconds)
     notify_done(seconds, ntfy_url, title)
     sh(timer_cmd)
 
@@ -107,5 +108,4 @@ def parse_arguments ():
 
 [human_time, seconds, pomo_type, title] = parse_arguments()
 
-set_timer(seconds, url, title)
-log_time(logfile, pomo_type, title, human_time, seconds)
+set_timer(pomo_type, title, seconds, human_time, url)
