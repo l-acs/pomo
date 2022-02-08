@@ -1,5 +1,5 @@
 import sqlite3
-
+from os import environ as env
 
 db = 'my.db'
 con = sqlite3.connect(db)
@@ -58,6 +58,13 @@ def select(table, field_list):
 
 # next step: add a variable storing the default pomo length, reading
 # from an environment variable or falling back to 25m
+default_len = env.get("DEFAULT_POMODORO_DURATION", "25m")
+
+
+# how do I read from a config file?
+# the order should be CLI > environment variables > config > defaults
+
+
 
 # next step: write a function that takes (a) a label and (b) a length
 # for the pomodoro, and outputs a dicitonary containing
@@ -65,3 +72,24 @@ def select(table, field_list):
 # - the pomo's length
 # - the pomo's type
 # - the pomo label
+
+
+
+
+
+# read from config
+from configparser import ConfigParser
+
+c = ConfigParser()
+
+home = env.get("HOME",
+               '/home/' + env.get("USER", "user") + '/')
+cfg_location = env.get("XDG_CONFIG_HOME",
+                       home + ".config") + '/pomo'
+
+cfg_fname = f'{cfg_location}/sample.ini' # todo: read from the config location else fail
+
+
+# for now, it's just relative:
+c.read('sample.ini')
+c.sections()
