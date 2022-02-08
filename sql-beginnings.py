@@ -80,7 +80,6 @@ default_len = env.get("DEFAULT_POMODORO_DURATION", "25m")
 # read from config
 from configparser import ConfigParser
 
-c = ConfigParser()
 
 home = env.get("HOME",
                '/home/' + env.get("USER", "user") + '/')
@@ -89,7 +88,50 @@ cfg_location = env.get("XDG_CONFIG_HOME",
 
 cfg_fname = f'{cfg_location}/sample.ini' # todo: read from the config location else fail
 
+ringtone = f'{cfg_location}/ringtone.webm'
+
+
 
 # for now, it's just relative:
-c.read('sample.ini')
-c.sections()
+# c = ConfigParser()
+# c.read('sample.ini')
+# c.sections()
+
+
+def get_user_config(fname, cfg_dict):
+    # this will _wipe_ cfg_dict!
+
+    cfg = ConfigParser()
+    cfg.read(fname)
+
+    out = {}
+    for key in cfg['default']: # first set defaults
+        out[key] = cfg['default'][key]
+
+    # now re-populate with overrides if the user has defined any
+
+    for key in cfg['user']:
+        out[key] = cfg['user'][key]
+
+    cfg_dict = out
+    return cfg_dict
+
+
+
+# todo: let environment variables override
+
+# for config's default_duration it tries $POMO_DEFAULT_DURATION, for ringtone_dir it tries $POMO_RINGTONE_DIR, etc.
+
+def get_env (cfg_dict):
+    # this mutates cfg_dict and returns it
+    for k in cfg_dict:
+        print(type(k))
+
+
+
+
+
+def something_that_gets_cfg_then_overrides_with_env():
+    # and eventually then overrides with CLI 🤢
+
+    return
