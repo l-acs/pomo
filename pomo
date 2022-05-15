@@ -13,7 +13,7 @@ timer_cmd = "mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/in
 home = env.get("HOME", "/home/user")
 url = env.get("NTFY_POMO_URL")
 logfile = f"{home}/.scripts/output/pomo.log"
-default_duration = "25m"
+default_duration = env.get("POMO_DEFAULT_DURATION", "25m")
 
 def parse_time (arg):
     regex = r"(\d+)([smh])([eior]?[cnu]?[sr]?[s]?)?(.*)?" #jank
