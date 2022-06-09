@@ -84,9 +84,9 @@ def set_timer (pomo_type, title, seconds, human_time, ntfy_url):
         print(msg)
 
     if is_pomo(seconds):
-        sh("killall -SIGUSR1 dunst") # pause
+        sh("(killall -SIGUSR1 dunst; pkill -STOP -f org.gnome.Shell.Notifications) &") # pause
         sleep(seconds)
-        sh("killall -SIGUSR2 dunst") # resume
+        sh("(killall -SIGUSR2 dunst; pkill -CONT -f org.gnome.Shell.Notifications) &") # resume
 
     else:
         sleep(seconds)
