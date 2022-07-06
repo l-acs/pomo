@@ -9,7 +9,7 @@ from sys import argv
 from os import system as sh
 from os import environ as env
 
-timer_cmd = "mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all"
+ring_cmd = "(mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all) 2>/dev/null"
 home = env.get("HOME", "/home/user")
 url = env.get("NTFY_POMO_URL")
 logfile = f"{home}/.scripts/output/pomo.log"
@@ -36,9 +36,6 @@ def parse_time (arg):
         # invalid time
         return None
 
-
-# def gen_human_time (t):
-#     return t if t else default_duration
 
 def gen_seconds (s):
     return s if s else parse_time(default_duration)
@@ -72,9 +69,13 @@ def notify_done (time, ntfy_url, title):
 
     sh("notify-send " + header + "'" + timer_type + " done!' &")
 
-    requests.post(url,
-                  data = (timer_type + notif_suffix).encode(),
-                  headers = { "Tags": "tomato,tomato" })
+    try:
+        requests.post(ntfy_url,
+                      data = (timer_type + notif_suffix).encode(),
+                      headers = { "Tags": "tomato,tomato" })
+
+    except:
+        print(f'Error reaching external notification server at {ntfy_url}!')
 
     # maybe there's a libnotify implementation for python... duh
 
@@ -93,19 +94,19 @@ def set_timer (pomo_type, title, seconds, human_time, ntfy_url):
 
     log_time(logfile, pomo_type, title, human_time, seconds)
     notify_done(seconds, ntfy_url, title)
-    sh(timer_cmd)
+    sh(ring_cmd)
 
-def parse_arguments ():
-    human_time = argv[1] if len(argv) > 1 else default_duration
+def parse_arguments (args):
+    human_time = args[1] if len(args) > 1 else default_duration
     seconds = parse_time(human_time)
     pomo_type = pomo_or_timer (is_pomo(seconds))
 
     # if the first argument is a time, don't include it in the label
-    title = " ".join([argv[i] for i in range ((2 if human_time else 1), len(argv))])
+    title = " ".join([args[i] for i in range ((2 if human_time else 1), len(args))])
 
     return [human_time, seconds, pomo_type, title]
 
 
-[human_time, seconds, pomo_type, title] = parse_arguments()
+[human_time, seconds, pomo_type, title] = parse_arguments(argv)
 
 set_timer(pomo_type, title, seconds, human_time, url)
