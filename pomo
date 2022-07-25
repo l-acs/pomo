@@ -8,11 +8,17 @@ from time import sleep
 from sys import argv
 from os import system as sh
 from os import environ as env
+from os import makedirs
 
 ring_cmd = "(mpv --force-window --loop-playlist=inf --really-quiet ~/.scripts/input/ringtone.webm && dunstctl close-all) 2>/dev/null"
 home = env.get("HOME", "/home/user")
 url = env.get("NTFY_POMO_URL")
-logfile = f"{home}/.scripts/output/pomo.log"
+
+log_parent = f"{home}/.scripts/output/"
+logfile = f"{log_parent}/pomo.log"
+
+makedirs(log_parent, exist_ok=True)
+
 default_duration = env.get("POMO_DEFAULT_DURATION", "25m")
 
 def parse_time (arg):
