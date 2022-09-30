@@ -115,4 +115,8 @@ def parse_arguments (args):
 
 [human_time, seconds, pomo_type, title] = parse_arguments(argv)
 
-set_timer(pomo_type, title, seconds, human_time, url)
+try:
+    set_timer(pomo_type, title, seconds, human_time, url)
+
+except KeyboardInterrupt:
+    print(f'\nCanceling your {pomo_type.lower()}!')
