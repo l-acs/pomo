@@ -68,6 +68,14 @@ def log_time (filename, pomo_type, title, human_time, seconds):
     f.write(log_str)
     f.close()
 
+def pause_notifications (paused):
+    dunst_signal, alt_signal = ("-SIGUSR1", "-STOP") if paused \
+        else ("-SIGUSR2", "-CONT")
+
+    sh(f"(killall {dunst_signal} dunst;" + \
+       f" pkill {alt_signal} -f org.gnome.Shell.Notifications)" +
+       "2>/dev/null &")
+
 def notify_done (time, ntfy_url, title):
     timer_type  = pomo_or_timer(is_pomo(time))
     notif_suffix  = ' complete! \n' + ('(' + title + ')' if title else '')
@@ -91,9 +99,9 @@ def set_timer (pomo_type, title, seconds, human_time, ntfy_url):
         print(msg)
 
     if is_pomo(seconds):
-        sh("(killall -SIGUSR1 dunst; pkill -STOP -f org.gnome.Shell.Notifications) 2>/dev/null &") # pause
+        pause_notifications(paused=True)
         sleep(seconds)
-        sh("(killall -SIGUSR2 dunst; pkill -CONT -f org.gnome.Shell.Notifications) 2>/dev/null &") # resume
+        pause_notifications(paused=False)
 
     else:
         sleep(seconds)
@@ -120,3 +128,6 @@ try:
 
 except KeyboardInterrupt:
     print(f'\nCanceling your {pomo_type.lower()}!')
+
+    if is_pomo(seconds):
+        pause_notifications(paused=False)
